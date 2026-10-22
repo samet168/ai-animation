@@ -140,8 +140,10 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         duration = max(duration, 2.0)
         total_frames = int(duration * fps)
 
-        # 1. Load image
+        # 1. Ensure watermark is erased and load image
         try:
+            from app.services.image_service import ImageService
+            ImageService.remove_watermark(image_path)
             raw_img = Image.open(image_path).convert("RGB").resize((width, height), Image.Resampling.LANCZOS)
             base_arr = np.array(raw_img, dtype=np.float32)
         except Exception as e:

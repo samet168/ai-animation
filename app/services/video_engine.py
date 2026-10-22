@@ -106,6 +106,13 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         ffmpeg = cls.get_ffmpeg_cmd()
         os.makedirs(os.path.dirname(os.path.abspath(output_clip_path)), exist_ok=True)
         
+        # Ensure watermark is erased from image before rendering
+        try:
+            from app.services.image_service import ImageService
+            ImageService.remove_watermark(image_path)
+        except Exception:
+            pass
+
         width, height = cls.DIMENSIONS.get(aspect_ratio, (720, 1280))
         fps = 25
         duration = max(duration, 2.0)

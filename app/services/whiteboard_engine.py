@@ -95,8 +95,10 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         duration = max(duration, 2.0)
         total_frames = int(duration * fps)
 
-        # 1. Load image and resize to target dimension
+        # 1. Ensure watermark is erased and load image
         try:
+            from app.services.image_service import ImageService
+            ImageService.remove_watermark(image_path)
             raw_img = Image.open(image_path).convert("RGB")
             # If aspect ratio does not match, fit and center on white canvas
             img_resized = raw_img.resize((width, height), Image.Resampling.LANCZOS)
