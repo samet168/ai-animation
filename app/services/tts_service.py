@@ -14,7 +14,7 @@ class TTSService:
     VOICES = {
         "km-KH-PisethNeural": "សំឡេងប្រុស (Piseth - ខ្មែរ)",
         "km-KH-SreymomNeural": "សំឡេងស្រី (Sreymom - ខ្មែរ)",
-        "cloned_voice": "🧬 Clone សំឡេងផ្ទាល់ខ្លួន (Custom Voice Clone)",
+        "cloned_voice": "Clone សំឡេងផ្ទាល់ខ្លួន (Custom Voice Clone)",
         "en-US-AndrewMultilingualNeural": "English - Andrew (Multilingual)",
         "en-US-AvaMultilingualNeural": "English - Ava (Multilingual)",
         "zh-CN-YunxiNeural": "Chinese - Yunxi (Male)",
@@ -23,17 +23,17 @@ class TTSService:
 
     TONE_PRESETS = {
         "educational": {
-            "name": "🧘 ទឹកដមបែបអប់រំ & ចិត្តវិទ្យា (Calm & Deep)",
+            "name": "ទឹកដមបែបអប់រំ & ចិត្តវិទ្យា (Calm & Deep)",
             "rate": "-6%",
             "pitch": "-2Hz",
         },
         "story": {
-            "name": "📖 ទឹកដមបែបនិទានរឿង (Storytelling)",
+            "name": "ទឹកដមបែបនិទានរឿង (Storytelling)",
             "rate": "-4%",
             "pitch": "+0Hz",
         },
         "standard": {
-            "name": "⚡ ទឹកដមធម្មតា/រហ័ស (Standard)",
+            "name": "ទឹកដមធម្មតា/រហ័ស (Standard)",
             "rate": "+0%",
             "pitch": "+0Hz",
         },

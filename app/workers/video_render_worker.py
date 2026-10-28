@@ -133,7 +133,8 @@ class VideoRenderWorker(QThread):
                 elif motion in ("talking", "character_motion", "lip_sync"):
                     chosen_motion = "talking"
                 else:
-                    chosen_motion = "zoom_in"
+                    auto_motions = ["zoom_in", "pan_left", "zoom_out", "steady", "zoom_in", "pan_right"]
+                    chosen_motion = auto_motions[i % len(auto_motions)]
 
                 out_clip = os.path.join(clips_dir, f"clip_{scene_id}_{scene_num}.mp4")
                 ok = VideoEngine.create_scene_clip(

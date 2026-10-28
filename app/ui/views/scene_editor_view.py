@@ -99,13 +99,13 @@ class SceneCard(QFrame):
         header_lay.addWidget(m_lbl)
 
         self.cmb_motion = QComboBox()
-        self.cmb_motion.addItem("🔍 Zoom In (ពង្រីកចូល)", "zoom_in")
-        self.cmb_motion.addItem("🔎 Zoom Out (បង្រួមចេញ)", "zoom_out")
-        self.cmb_motion.addItem("⬅️ Pan Left (កាមេរ៉ារំកិលឆ្វេង)", "pan_left")
-        self.cmb_motion.addItem("➡️ Pan Right (កាមេរ៉ារំកិលស្តាំ)", "pan_right")
-        self.cmb_motion.addItem("⏹️ Steady / Cut (រូបភាពនឹង)", "steady")
-        self.cmb_motion.addItem("🗣️ Talking Character (តួអង្គនិយាយ)", "talking")
-        self.cmb_motion.addItem("✍️ Whiteboard Hand-Drawn", "whiteboard")
+        self.cmb_motion.addItem(get_icon("zoom-in", "#60A5FA", 14), "Zoom In (ពង្រីកចូល)", "zoom_in")
+        self.cmb_motion.addItem(get_icon("zoom-out", "#60A5FA", 14), "Zoom Out (បង្រួមចេញ)", "zoom_out")
+        self.cmb_motion.addItem(get_icon("arrow-left", "#A78BFA", 14), "Pan Left (កាមេរ៉ារំកិលឆ្វេង)", "pan_left")
+        self.cmb_motion.addItem(get_icon("arrow-right", "#A78BFA", 14), "Pan Right (កាមេរ៉ារំកិលស្តាំ)", "pan_right")
+        self.cmb_motion.addItem(get_icon("square", "#9CA3AF", 14), "Steady / Cut (រូបភាពនឹង)", "steady")
+        self.cmb_motion.addItem(get_icon("user", "#34D399", 14), "Talking Character (តួអង្គនិយាយ)", "talking")
+        self.cmb_motion.addItem(get_icon("edit", "#F472B6", 14), "Whiteboard Hand-Drawn", "whiteboard")
         
         cur_motion = self.scene.get("camera_motion", "zoom_in")
         idx = self.cmb_motion.findData(cur_motion)
@@ -183,7 +183,7 @@ class SceneCard(QFrame):
                 self.lbl_thumb.setPixmap(pix.scaled(self.lbl_thumb.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
                 self.lbl_thumb.setStyleSheet("background-color: #16181C; border: 1px solid #2B2E36; border-radius: 6px;")
             else:
-                self.lbl_thumb.setText("⚠️ រូបភាពបណ្តោះអាសន្ន\n(ចុច 'បង្កើតរូបថ្មី')")
+                self.lbl_thumb.setText("រូបភាពបណ្តោះអាសន្ន\n(ចុច 'បង្កើតរូបថ្មី')")
                 self.lbl_thumb.setStyleSheet("color: #F59E0B; font-size: 11px; font-weight: 600; background-color: #1F1914; border: 1px dashed #D97706; border-radius: 6px;")
         else:
             self.lbl_thumb.setText("គ្មានរូបភាព\n(No Image)")

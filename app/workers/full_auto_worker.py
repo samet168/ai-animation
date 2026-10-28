@@ -167,8 +167,9 @@ class FullAutoWorker(QThread):
                 elif self.motion_mode in ("talking", "character_motion", "lip_sync") or sc.get("camera_motion") == "talking":
                     chosen_motion = "talking"
                 else:
-                    # Default: smooth cinematic zoom
-                    chosen_motion = "zoom_in"
+                    # Auto / Default: dynamically alternate smooth cinematic camera motions & steady cuts
+                    auto_motions = ["zoom_in", "pan_left", "zoom_out", "steady", "zoom_in", "pan_right"]
+                    chosen_motion = auto_motions[i % len(auto_motions)]
 
                 clip_file = os.path.join(clips_dir, f"p{project_id}_s{sc['id']}.mp4")
                 ok = VideoEngine.create_scene_clip(

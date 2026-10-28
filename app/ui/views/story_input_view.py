@@ -22,18 +22,18 @@ class StoryInputView(QWidget):
     video_ready = Signal(int, str)  # (project_id, final_video_path)
 
     STYLES = [
-        ("talkmoney_2d", "🎨 2D Comic (TalkMoney ដូច aitest.mp4)"),
-        ("cinematic_zoom", "🎬 Cinematic Motion (Zoom In/Out/Pan)"),
-        ("3d_pixar", "✨ 3D Disney Pixar Animation"),
-        ("whiteboard_doodle", "✍️ Whiteboard Doodle (គូសដៃ)"),
+        ("talkmoney_2d", "2D Comic (TalkMoney ដូច aitest.mp4)", "palette"),
+        ("cinematic_zoom", "Cinematic Motion (Zoom In/Out/Pan)", "film"),
+        ("3d_pixar", "3D Disney Pixar Animation", "sparkles"),
+        ("whiteboard_doodle", "Whiteboard Doodle (គូសដៃ)", "edit"),
     ]
 
     GENRES = [
-        ("business", "💼 រកស៊ី & អាជីវកម្ម (Business & TalkMoney)"),
-        ("psychology", "🧠 ចិត្តវិទ្យា & អារម្មណ៍ផ្លូវចិត្ត (Psychology)"),
-        ("philosophy", "💡 ទស្សនវិជ្ជាជីវិត & គំនិតជោគជ័យ (Philosophy)"),
-        ("story", "📖 រឿងនិទាន & បទពិសោធន៍ (Storytelling)"),
-        ("education", "🎓 ចំណេះដឹងទូទៅ & ការពិតប្លែកៗ (Education)"),
+        ("business", "រកស៊ី & អាជីវកម្ម (Business & TalkMoney)", "briefcase"),
+        ("psychology", "ចិត្តវិទ្យា & អារម្មណ៍ផ្លូវចិត្ត (Psychology)", "brain"),
+        ("philosophy", "ទស្សនវិជ្ជាជីវិត & គំនិតជោគជ័យ (Philosophy)", "lightbulb"),
+        ("story", "រឿងនិទាន & បទពិសោធន៍ (Storytelling)", "book"),
+        ("education", "ចំណេះដឹងទូទៅ & ការពិតប្លែកៗ (Education)", "graduation-cap"),
     ]
 
     GENRE_SUGGESTIONS = {
@@ -117,8 +117,8 @@ class StoryInputView(QWidget):
         genre_row.addWidget(g_lbl)
 
         self.cmb_genre = QComboBox()
-        for g_k, g_name in self.GENRES:
-            self.cmb_genre.addItem(g_name, g_k)
+        for g_k, g_name, g_icon in self.GENRES:
+            self.cmb_genre.addItem(get_icon(g_icon, "#60A5FA", 16), g_name, g_k)
         self.cmb_genre.currentIndexChanged.connect(self._on_genre_changed)
         genre_row.addWidget(self.cmb_genre)
         t_lay.addLayout(genre_row)
@@ -147,8 +147,8 @@ class StoryInputView(QWidget):
         st_lbl = QLabel("រចនាប័ទ្មរូបភាព (Art Style):")
         st_lbl.setStyleSheet("font-weight: 600; color: #D1D5DB; font-size: 12px;")
         self.cmb_style = QComboBox()
-        for k, name in self.STYLES:
-            self.cmb_style.addItem(name, k)
+        for k, name, s_icon in self.STYLES:
+            self.cmb_style.addItem(get_icon(s_icon, "#60A5FA", 16), name, k)
         self.cmb_style.currentIndexChanged.connect(self._on_style_changed)
         st_box.addWidget(st_lbl)
         st_box.addWidget(self.cmb_style)
@@ -159,13 +159,14 @@ class StoryInputView(QWidget):
         mot_lbl = QLabel("ចលនា Camera (Motion):")
         mot_lbl.setStyleSheet("font-weight: 600; color: #D1D5DB; font-size: 12px;")
         self.cmb_motion = QComboBox()
-        self.cmb_motion.addItem("Zoom In (ពង្រីកចូលសន្សឹមៗ)", "zoom_in")
-        self.cmb_motion.addItem("Zoom Out (បង្រួមចេញសន្សឹមៗ)", "zoom_out")
-        self.cmb_motion.addItem("Pan Left (កាមេរ៉ារំកិលឆ្វេង)", "pan_left")
-        self.cmb_motion.addItem("Pan Right (កាមេរ៉ារំកិលស្តាំ)", "pan_right")
-        self.cmb_motion.addItem("Steady / Cut (ប្តូរប្លង់កាត់តធម្មតា)", "steady")
-        self.cmb_motion.addItem("Talking Character (តួអង្គនិយាយ)", "talking")
-        self.cmb_motion.addItem("Whiteboard Hand (គូសដៃ)", "whiteboard")
+        self.cmb_motion.addItem(get_icon("sparkles", "#F59E0B", 16), "Auto (ឆ្លាតវៃស្វ័យប្រវត្តិតាមសាច់រឿង)", "auto")
+        self.cmb_motion.addItem(get_icon("zoom-in", "#60A5FA", 16), "Zoom In (ពង្រីកចូលសន្សឹមៗ)", "zoom_in")
+        self.cmb_motion.addItem(get_icon("zoom-out", "#60A5FA", 16), "Zoom Out (បង្រួមចេញសន្សឹមៗ)", "zoom_out")
+        self.cmb_motion.addItem(get_icon("arrow-left", "#A78BFA", 16), "Pan Left (កាមេរ៉ារំកិលឆ្វេង)", "pan_left")
+        self.cmb_motion.addItem(get_icon("arrow-right", "#A78BFA", 16), "Pan Right (កាមេរ៉ារំកិលស្តាំ)", "pan_right")
+        self.cmb_motion.addItem(get_icon("square", "#9CA3AF", 16), "Steady / Cut (ប្តូរប្លង់កាត់តធម្មតា)", "steady")
+        self.cmb_motion.addItem(get_icon("user", "#34D399", 16), "Talking Character (តួអង្គនិយាយ)", "talking")
+        self.cmb_motion.addItem(get_icon("edit", "#F472B6", 16), "Whiteboard Hand (គូសដៃ)", "whiteboard")
         mot_box.addWidget(mot_lbl)
         mot_box.addWidget(self.cmb_motion)
         p_lay.addLayout(mot_box)
@@ -175,8 +176,8 @@ class StoryInputView(QWidget):
         ar_lbl = QLabel("ទំហំវីដេអូ (Aspect Ratio):")
         ar_lbl.setStyleSheet("font-weight: 600; color: #D1D5DB; font-size: 12px;")
         self.cmb_ratio = QComboBox()
-        self.cmb_ratio.addItem("ផ្ដេក 16:9 (YouTube Widescreen - ដូច aitest.mp4)", "16:9")
-        self.cmb_ratio.addItem("បញ្ឈរ 9:16 (TikTok, Reels, Shorts)", "9:16")
+        self.cmb_ratio.addItem(get_icon("monitor", "#60A5FA", 16), "ផ្ដេក 16:9 (YouTube Widescreen - ដូច aitest.mp4)", "16:9")
+        self.cmb_ratio.addItem(get_icon("smartphone", "#A78BFA", 16), "បញ្ឈរ 9:16 (TikTok, Reels, Shorts)", "9:16")
         ar_box.addWidget(ar_lbl)
         ar_box.addWidget(self.cmb_ratio)
         p_lay.addLayout(ar_box)
@@ -186,8 +187,9 @@ class StoryInputView(QWidget):
         v_lbl = QLabel("សំឡេង & Clone (Voice):")
         v_lbl.setStyleSheet("font-weight: 600; color: #D1D5DB; font-size: 12px;")
         self.cmb_voice = QComboBox()
-        for v_id, v_name in TTSService.VOICES.items():
-            self.cmb_voice.addItem(v_name, v_id)
+        self.cmb_voice.addItem(get_icon("volume", "#60A5FA", 16), "ពិសិដ្ឋ Piseth (ប្រុស - Edge-TTS Free)", "km-KH-PisethNeural")
+        self.cmb_voice.addItem(get_icon("volume", "#F472B6", 16), "ស្រីមុំ Sreymom (ស្រី - Edge-TTS Free)", "km-KH-SreymomNeural")
+        self.cmb_voice.addItem(get_icon("mic", "#34D399", 16), "Voice Clone (ក្លូនសំឡេង / ElevenLabs)", "cloned_voice")
         self.cmb_voice.currentIndexChanged.connect(self._on_voice_changed)
         v_box.addWidget(v_lbl)
         v_box.addWidget(self.cmb_voice)
@@ -196,7 +198,8 @@ class StoryInputView(QWidget):
         self.clone_row = QWidget()
         cl_lay = QHBoxLayout(self.clone_row)
         cl_lay.setContentsMargins(0, 0, 0, 0)
-        self.btn_pick_sample = QPushButton("📁 ជ្រើសសំឡេងគំរូ (.mp3/.wav)")
+        self.btn_pick_sample = QPushButton("  ជ្រើសសំឡេងគំរូ (.mp3/.wav)")
+        self.btn_pick_sample.setIcon(get_icon("folder", "#60A5FA", 14))
         self.btn_pick_sample.setStyleSheet("font-size: 10px; padding: 2px 6px; background-color: #22252B; border: 1px solid #363B45; color: #60A5FA; border-radius: 4px;")
         self.btn_pick_sample.clicked.connect(self._pick_voice_sample)
         cl_lay.addWidget(self.btn_pick_sample)
@@ -205,7 +208,7 @@ class StoryInputView(QWidget):
         self.lbl_sample_status.setStyleSheet("color: #34D399; font-size: 10px;")
         sample = settings.get("custom_voice_sample_path", "")
         if sample and os.path.exists(sample):
-            self.lbl_sample_status.setText(f"✅ {os.path.basename(sample)}")
+            self.lbl_sample_status.setText(os.path.basename(sample))
         cl_lay.addWidget(self.lbl_sample_status)
         cl_lay.addStretch()
         v_box.addWidget(self.clone_row)
@@ -214,9 +217,9 @@ class StoryInputView(QWidget):
         t_lbl = QLabel("ទឹកដមសម្លេង (Voice Mood):")
         t_lbl.setStyleSheet("font-weight: 600; color: #9CA3AF; font-size: 11px; margin-top: 2px;")
         self.cmb_tone = QComboBox()
-        self.cmb_tone.addItem("🧘 ទឹកដមអប់រំ & ចិត្តវិទ្យា (Calm & Deep - ណែនាំ)", "educational")
-        self.cmb_tone.addItem("📖 ទឹកដមបែបនិទានរឿង (Storyteller)", "story")
-        self.cmb_tone.addItem("⚡ ទឹកដមធម្មតា/រហ័ស (Standard)", "standard")
+        self.cmb_tone.addItem(get_icon("heart", "#34D399", 16), "ទឹកដមអប់រំ & ចិត្តវិទ្យា (Calm & Deep - ណែនាំ)", "educational")
+        self.cmb_tone.addItem(get_icon("book", "#60A5FA", 16), "ទឹកដមបែបនិទានរឿង (Storyteller)", "story")
+        self.cmb_tone.addItem(get_icon("bolt", "#F59E0B", 16), "ទឹកដមធម្មតា/រហ័ស (Standard)", "standard")
         v_box.addWidget(t_lbl)
         v_box.addWidget(self.cmb_tone)
         p_lay.addLayout(v_box)
@@ -335,12 +338,8 @@ class StoryInputView(QWidget):
             idx = self.cmb_motion.findData("whiteboard")
             if idx >= 0:
                 self.cmb_motion.setCurrentIndex(idx)
-        elif style == "talkmoney_2d":
-            idx = self.cmb_motion.findData("zoom_in")
-            if idx >= 0:
-                self.cmb_motion.setCurrentIndex(idx)
         else:
-            idx = self.cmb_motion.findData("zoom_in")
+            idx = self.cmb_motion.findData("auto")
             if idx >= 0:
                 self.cmb_motion.setCurrentIndex(idx)
 
@@ -351,7 +350,7 @@ class StoryInputView(QWidget):
         if file_path:
             ok, msg = TTSService.clone_voice_sample(file_path)
             fname = os.path.basename(file_path)
-            self.lbl_sample_status.setText(f"✅ {fname}")
+            self.lbl_sample_status.setText(fname)
             idx = self.cmb_voice.findData("cloned_voice")
             if idx >= 0:
                 self.cmb_voice.setCurrentIndex(idx)
@@ -421,13 +420,17 @@ class StoryInputView(QWidget):
             title = story_data.get("title", topic)
             raw_scenes = story_data.get("scenes", [])
             proj_id = db.create_project(title, topic, style, ratio, voice)
-            for s in raw_scenes:
+            auto_motions = ["zoom_in", "pan_left", "zoom_out", "steady", "zoom_in", "pan_right"]
+            for i, s in enumerate(raw_scenes):
+                sc_motion = s.get("camera_motion")
+                if not sc_motion or sc_motion == "auto":
+                    sc_motion = auto_motions[i % len(auto_motions)] if motion == "auto" else (motion or "zoom_in")
                 db.add_scene(
                     proj_id, 
-                    s.get("scene_number", 1), 
+                    s.get("scene_number", i + 1), 
                     s.get("narration_km", ""), 
                     s.get("image_prompt_en", ""),
-                    s.get("camera_motion") or motion or "talking"
+                    sc_motion
                 )
             self._set_ui_busy(False)
             self.open_studio.emit(proj_id)
