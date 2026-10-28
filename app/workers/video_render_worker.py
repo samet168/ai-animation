@@ -128,12 +128,12 @@ class VideoRenderWorker(QThread):
 
                 if (self.art_style and self.art_style.startswith("whiteboard")) or motion == "whiteboard":
                     chosen_motion = "whiteboard"
+                elif motion in ("zoom_in", "zoom_out", "pan_left", "pan_right", "steady", "cut", "none"):
+                    chosen_motion = motion
                 elif motion in ("talking", "character_motion", "lip_sync"):
                     chosen_motion = "talking"
-                elif motion in ("zoom_in", "zoom_out", "pan_left", "pan_right"):
-                    chosen_motion = motion
                 else:
-                    chosen_motion = "talking"
+                    chosen_motion = "zoom_in"
 
                 out_clip = os.path.join(clips_dir, f"clip_{scene_id}_{scene_num}.mp4")
                 ok = VideoEngine.create_scene_clip(

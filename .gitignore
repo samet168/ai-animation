@@ -36,6 +36,8 @@ output/
 data/audio/
 data/clips/
 data/images/
+data/database/
+*.db
 scratch/
 *.mp4
 *.mp3

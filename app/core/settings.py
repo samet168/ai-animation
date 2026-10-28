@@ -13,11 +13,16 @@ class SettingsManager:
         "gemini_api_key": "",
         "groq_api_key": "",
         "huggingface_token": "",
+        "elevenlabs_api_key": "",
+
+        # Voice Cloning Settings
+        "cloned_voice_id": "",
+        "custom_voice_sample_path": "",
 
         # Story & Generation Defaults
-        "default_style": "3d_pixar",
-        "default_scenes_count": 5,
-        "aspect_ratio": "9:16",  # "9:16" or "16:9"
+        "default_style": "talkmoney_2d",
+        "default_scenes_count": 6,
+        "aspect_ratio": "16:9",  # "16:9" or "9:16"
 
         # Image Settings
         "image_model": "flux",    # "flux", "turbo"
@@ -64,8 +69,13 @@ class SettingsManager:
         # User AppData dir for persistent settings
         appdata_base = os.getenv("LOCALAPPDATA") or os.path.expanduser("~")
         self.config_dir = os.path.join(appdata_base, "AIAnimationStudio")
-        os.makedirs(self.config_dir, exist_ok=True)
-        self.config_file = os.path.join(self.config_dir, "settings.json")
+        try:
+            os.makedirs(self.config_dir, exist_ok=True)
+            self.config_file = os.path.join(self.config_dir, "settings.json")
+        except (PermissionError, OSError):
+            self.config_dir = os.path.join(self.app_dir, "data")
+            os.makedirs(self.config_dir, exist_ok=True)
+            self.config_file = os.path.join(self.config_dir, "settings.json")
 
         self.settings = dict(self.DEFAULT_SETTINGS)
         self.load()

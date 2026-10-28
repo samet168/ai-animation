@@ -172,11 +172,21 @@ Your narration must be natural, spoken conversational Khmer, deeply insightful, 
             genre_context = """CONTENT GENRE: Engaging Narrative Video Storytelling with Conversational Flow and Strong Visuals.
 Write like a modern video creator telling an engaging story directly to the viewer."""
 
+        if style in ("talkmoney_2d", "2d_comic", "stickman"):
+            style_instruction = """VISUAL ART STYLE: TalkMoney 2D Stickman Comic Animation (like aitest.mp4).
+- Character: A simple 2D stickman character with a round white circle head, expressive black line facial emotions (worried, confident, holding head, observing), stick body wearing casual modern clothing.
+- Background: Detailed colorful 2D cartoon background of realistic Cambodian scenes (coffee shop counter, street with tuk-tuks, warehouse, local market, rain outside).
+- Lineart: Clean inked outlines, vibrant flat cartoon colors, comic book storytelling framing."""
+        elif style in ("cinematic_zoom", "cinematic_realistic"):
+            style_instruction = """VISUAL ART STYLE: Cinematic Movie Scene Still with 35mm lens, atmospheric lighting, depth of field, sharp focus, 4k resolution."""
+        else:
+            style_instruction = f"VISUAL ART STYLE: {style}"
+
         user_prompt = f"""Topic: {topic}
 Number of Scenes: {num_scenes}
-Art Style: {style}
 Target Duration: ~{dur_label} (~{target_sec} seconds total)
 {genre_context}
+{style_instruction}
 
 CRITICAL NARRATION & SCRIPT REQUIREMENTS:
 1. Natural Spoken Creator Language: Write in natural conversational Khmer like a real video creator on YouTube / TikTok talking to their audience.

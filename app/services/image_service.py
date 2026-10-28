@@ -20,9 +20,14 @@ class ImageService:
     COOLDOWN_SECONDS: float = 45.0
 
     STYLE_PROMPTS = {
+        # Core 2 Modes (Preferred)
+        "talkmoney_2d": "TalkMoney 2D Stickman Comic style, cute simple stickman character with round white circle head, expressive black line eyes and eyebrows, stick figure body wearing casual clothes, detailed colorful 2D cartoon background of everyday Cambodian life (coffee shop, street with tuk-tuks, local market, warehouse, rain, office), clean crisp inked outlines, vibrant flat colors, graphic novel storytelling illustration, masterpiece",
+        "cinematic_zoom": "Cinematic movie scene still, photorealistic composition, 35mm film lens, dramatic atmospheric lighting, depth of field, sharp focus, 4k resolution, cinematic storytelling",
+
+        # Legacy Styles for backward compatibility
+        "3d_pixar": "3D Disney Pixar animation style, vibrant colorful, expressive character design, smooth subsurface scattering, cinematic lighting, 8k render, masterpiece",
         "whiteboard_doodle": "cute clean hand-drawn whiteboard doodle cartoon animation, minimalist black and white line art sketch, expressive cartoon character, crisp inked outlines, high contrast drawing on pure white background, coloring book style",
         "whiteboard_color": "vibrant hand-drawn whiteboard cartoon illustration, colorful markers sketch on pure white background, playful charming doodle characters, crisp inked outlines",
-        "3d_pixar": "3D Disney Pixar animation style, vibrant colorful, expressive character design, smooth subsurface scattering, cinematic lighting, 8k render, masterpiece",
         "anime_manga": "Japanese anime style, Makoto Shinkai and Studio Ghibli inspired, vibrant colors, clean sharp lineart, beautiful aesthetic scenery, highly detailed",
         "comic_book": "Modern graphic novel comic art style, bold inked outlines, dynamic shading, rich color palette, Marvel/DC comic illustration",
         "cinematic_realistic": "Cinematic movie scene still, photorealistic, 35mm film lens, atmospheric lighting, depth of field, sharp focus, 4k",

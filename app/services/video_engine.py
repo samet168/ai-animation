@@ -128,6 +128,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             zoom_filter = f"zoompan=z='1.25':x='(iw-iw/zoom)*(1-on/{total_frames})':y='ih/2-(ih/zoom/2)':d={total_frames}:s={width}x{height}:fps={fps}"
         elif motion == "pan_right":
             zoom_filter = f"zoompan=z='1.25':x='(iw-iw/zoom)*(on/{total_frames})':y='ih/2-(ih/zoom/2)':d={total_frames}:s={width}x{height}:fps={fps}"
+        elif motion in ("steady", "cut", "none"):
+            zoom_filter = f"zoompan=z=1.0:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d={total_frames}:s={width}x{height}:fps={fps}"
         else: # Default zoom_in
             zoom_filter = f"zoompan=z='min(zoom+{zoom_speed:.5f},1.35)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d={total_frames}:s={width}x{height}:fps={fps}"
 

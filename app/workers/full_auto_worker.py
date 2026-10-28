@@ -160,13 +160,15 @@ class FullAutoWorker(QThread):
                 # Resolve animation motion type
                 if self.style.startswith("whiteboard") or self.motion_mode == "whiteboard" or sc.get("camera_motion") == "whiteboard":
                     chosen_motion = "whiteboard"
+                elif self.motion_mode in ("zoom_in", "zoom_out", "pan_left", "pan_right", "steady", "cut"):
+                    chosen_motion = self.motion_mode
+                elif sc.get("camera_motion") in ("zoom_in", "zoom_out", "pan_left", "pan_right", "steady", "cut"):
+                    chosen_motion = sc.get("camera_motion")
                 elif self.motion_mode in ("talking", "character_motion", "lip_sync") or sc.get("camera_motion") == "talking":
                     chosen_motion = "talking"
-                elif self.motion_mode == "cinematic":
-                    chosen_motion = sc.get("camera_motion", "zoom_in")
                 else:
-                    # Default: talking character animation for characters, whiteboard for doodle styles
-                    chosen_motion = "talking"
+                    # Default: smooth cinematic zoom
+                    chosen_motion = "zoom_in"
 
                 clip_file = os.path.join(clips_dir, f"p{project_id}_s{sc['id']}.mp4")
                 ok = VideoEngine.create_scene_clip(

@@ -13,8 +13,14 @@ class Database:
         if not db_path:
             appdata_base = os.getenv("LOCALAPPDATA") or os.path.expanduser("~")
             db_dir = os.path.join(appdata_base, "AIAnimationStudio", "database")
-            os.makedirs(db_dir, exist_ok=True)
-            self.db_path = os.path.join(db_dir, "studio.db")
+            try:
+                os.makedirs(db_dir, exist_ok=True)
+                self.db_path = os.path.join(db_dir, "studio.db")
+            except (PermissionError, OSError):
+                app_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+                db_dir = os.path.join(app_dir, "data", "database")
+                os.makedirs(db_dir, exist_ok=True)
+                self.db_path = os.path.join(db_dir, "studio.db")
         else:
             self.db_path = db_path
         self._init_db()

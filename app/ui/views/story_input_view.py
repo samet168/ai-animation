@@ -1,7 +1,8 @@
+import os
 import logging
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextEdit, 
-    QPushButton, QComboBox, QSpinBox, QProgressBar, QFrame, QMessageBox
+    QPushButton, QComboBox, QSpinBox, QProgressBar, QFrame, QMessageBox, QFileDialog
 )
 from PySide6.QtCore import Qt, Signal, QSize
 from app.core.settings import settings
@@ -21,41 +22,44 @@ class StoryInputView(QWidget):
     video_ready = Signal(int, str)  # (project_id, final_video_path)
 
     STYLES = [
-        ("3d_pixar", "3D Disney Pixar Animation"),
-        ("whiteboard_doodle", "តុក្កតាគូសដៃ Whiteboard Doodle (ពេញនិយម Free រហូត)"),
-        ("whiteboard_color", "គូសដៃចម្រុះពណ៌ Whiteboard Color Sketch"),
-        ("anime_manga", "2D Anime / Manga Style"),
-        ("comic_book", "Comic Book / Graphic Novel"),
-        ("cinematic_realistic", "Cinematic Realistic Movie"),
-        ("chibi_3d", "Cute Chibi 3D Miniature"),
-        ("watercolor", "Watercolor Fairy Tale Storybook"),
+        ("talkmoney_2d", "🎨 2D Comic (TalkMoney ដូច aitest.mp4)"),
+        ("cinematic_zoom", "🎬 Cinematic Motion (Zoom In/Out/Pan)"),
+        ("3d_pixar", "✨ 3D Disney Pixar Animation"),
+        ("whiteboard_doodle", "✍️ Whiteboard Doodle (គូសដៃ)"),
     ]
 
     GENRES = [
-        ("psychology", "🧠 ចិត្តវិទ្យា & អារម្មណ៍ផ្លូវចិត្ត (Psychology & Emotions)"),
-        ("story", "📖 រឿងនិទាន & ដំណើរផ្សងព្រេង (Storytelling & Tales)"),
-        ("philosophy", "💡 ទស្សនវិជ្ជាជីវិត & គំនិតជោគជ័យ (Philosophy & Motivation)"),
-        ("education", "🎓 ចំណេះដឹងទូទៅ & ការពិតប្លែកៗ (Education & Facts)"),
+        ("business", "💼 រកស៊ី & អាជីវកម្ម (Business & TalkMoney)"),
+        ("psychology", "🧠 ចិត្តវិទ្យា & អារម្មណ៍ផ្លូវចិត្ត (Psychology)"),
+        ("philosophy", "💡 ទស្សនវិជ្ជាជីវិត & គំនិតជោគជ័យ (Philosophy)"),
+        ("story", "📖 រឿងនិទាន & បទពិសោធន៍ (Storytelling)"),
+        ("education", "🎓 ចំណេះដឹងទូទៅ & ការពិតប្លែកៗ (Education)"),
     ]
 
     GENRE_SUGGESTIONS = {
+        "business": [
+            ("រឿងបើកហាងកាហ្វេខាត", "ចូលអ្នកនិយាយពីរឿងបរាជ័យនៃការបើកហាងកាហ្វេខាតបង់លុយ និងមេរៀនសំខាន់ៗដែលគួរដឹងមុនរកស៊ី"),
+            ("របៀបសន្សំលុយ", "ចូលអ្នកចែករំលែកគន្លឹះចាត់ចែងលុយកាក់ និងទម្លាប់សន្សំលុយរបស់មនុស្សជោគជ័យ"),
+            ("៥ កំហុសក្នុងការរកស៊ី", "ចូលអ្នកបកស្រាយពីកំហុសធ្ងន់ធ្ងរទាំង ៥ ដែលអ្នកចាប់ផ្ដើមរកស៊ីថ្មីថ្មោងតែងតែជួបប្រទះ"),
+            ("ចិត្តវិទ្យាហិរញ្ញវត្ថុ", "ចូលអ្នកណែនាំពីចិត្តវិទ្យានៃការចាយវាយ និងវិធីគ្រប់គ្រងចំណូលចំណាយប្រចាំថ្ងៃ")
+        ],
         "psychology": [
             ("មនុស្សស្ងៀមស្ងាត់ (Introvert)", "ចូលអ្នកនិយាយពីមនុស្សដែលស្ងៀមស្ងាត់ តើពួកគេមានលក្ខណៈពិសេសអ្វីខ្លះ ហេតុអ្វីពួកគេស្ងប់ស្ងាត់ និងពិភពផ្លូវចិត្តខាងក្នុងរបស់ពួកគេ"),
             ("ចិត្តវិទ្យានៃភាពឯកោ", "ចូលអ្នកវិភាគចិត្តវិទ្យានៃអារម្មណ៍ឯកោ ហេតុអ្វីមនុស្សមានអារម្មណ៍ឯកោទោះនៅកណ្តាលចំណោមមនុស្ស និងវិធីព្យាបាលចិត្ត"),
             ("មនុស្សគិតច្រើន (Overthinking)", "ចូលអ្នកនិយាយពីចិត្តសាស្ត្ររបស់មនុស្សដែលចូលចិត្តគិតច្រើន ផលប៉ះពាល់ផ្លូវចិត្ត និងវិធីរំដោះខួរក្បាលឱ្យមានសន្តិភាព"),
             ("ហេតុអ្វីមនុស្សឆ្លាតចូលចិត្តនៅស្ងៀម?", "ចូលអ្នកបកស្រាយទស្សនវិជ្ជា និងចិត្តវិទ្យា៖ ហេតុអ្វីបានជាមនុស្សឆ្លាតវៃចូលចិត្តភាពស្ងប់ស្ងាត់ និងនៅម្នាក់ឯង?")
         ],
-        "story": [
-            ("រឿងកូនទន្សាយ និងអណ្ដើក", "រឿងនិទានកូនទន្សាយឈ្លាសវៃ និងអណ្ដើកប្រណាំងគ្នា ក្នុងព្រៃបុរាណដែលពោរពេញដោយផ្កាចម្រុះពណ៌"),
-            ("ដំណើរផ្សងព្រេងអង្គរវត្ត", "ដំណើរផ្សងព្រេងដ៏អស្ចារ្យរបស់កុមារាក្លាហាន ក្នុងការស្វែងរកកំណប់អាថ៌កំបាំងនៅប្រាសាទអង្គរវត្ត"),
-            ("រឿងបក្សីមាស និងដើមឈើវេទមន្ត", "រឿងនិទានបក្សីមាស និងដើមឈើវេទមន្តដែលផ្ដល់សេចក្តីសុខដល់មនុស្សគ្រប់គ្នា"),
-            ("កុមារក្លាហានជួយសង្គ្រោះភូមិ", "រឿងកុមារាក្លាហានដែលហ៊ានតស៊ូជួយសង្គ្រោះភូមិពីគ្រោះធម្មជាតិដោយក្ដីមេត្តា")
-        ],
         "philosophy": [
             ("ទម្លាប់មនុស្សជោគជ័យ", "ច្បាប់នៃការអភិវឌ្ឍខ្លួន និងទម្លាប់សំខាន់ៗទាំង ៥ ដែលជួយឱ្យមនុស្សសម្រេចគោលដៅធំៗក្នុងជីវិត"),
             ("តម្លៃនៃពេលវេលា", "ទស្សនវិជ្ជាស៊ីជម្រៅស្តីពីតម្លៃនៃពេលវេលា និងការមិនខ្ជះខ្ជាយជីវិតជាមួយរឿងឥតប្រយោជន៍"),
             ("សិល្បៈនៃការអត់ធ្មត់", "អំណាចនៃការអត់ធ្មត់ និងភាពស្ងប់ស្ងាត់ក្នុងការដោះស្រាយបញ្ហាធំៗក្នុងជីវិត"),
             ("ការយកឈ្នះភាពភ័យខ្លាច", "វិធីសាស្ត្រផ្លូវចិត្តក្នុងការយកឈ្នះភាពភ័យខ្លាច និងការកសាងទំនុកចិត្តលើខ្លួនឯង")
+        ],
+        "story": [
+            ("រឿងកូនទន្សាយ និងអណ្ដើក", "រឿងនិទានកូនទន្សាយឈ្លាសវៃ និងអណ្ដើកប្រណាំងគ្នា ក្នុងព្រៃបុរាណដែលពោរពេញដោយផ្កាចម្រុះពណ៌"),
+            ("ដំណើរផ្សងព្រេងអង្គរវត្ត", "ដំណើរផ្សងព្រេងដ៏អស្ចារ្យរបស់កុមារាក្លាហាន ក្នុងការស្វែងរកកំណប់អាថ៌កំបាំងនៅប្រាសាទអង្គរវត្ត"),
+            ("រឿងបក្សីមាស និងដើមឈើវេទមន្ត", "រឿងនិទានបក្សីមាស និងដើមឈើវេទមន្តដែលផ្ដល់សេចក្តីសុខដល់មនុស្សគ្រប់គ្នា"),
+            ("កុមារក្លាហានជួយសង្គ្រោះភូមិ", "រឿងកុមារាក្លាហានដែលហ៊ានតស៊ូជួយសង្គ្រោះភូមិពីគ្រោះធម្មជាតិដោយក្ដីមេត្តា")
         ],
         "education": [
             ("អាថ៌កំបាំងចក្រវាល", "ការពិតដ៏អស្ចារ្យទាំង ៥ អំពីចក្រវាល និងផ្កាយដែលមនុស្សភាគច្រើនមិនធ្លាប់បានដឹង"),
@@ -152,12 +156,16 @@ class StoryInputView(QWidget):
 
         # 2. Animation Motion Mode
         mot_box = QVBoxLayout()
-        mot_lbl = QLabel("ចលនា Animation (Motion):")
+        mot_lbl = QLabel("ចលនា Camera (Motion):")
         mot_lbl.setStyleSheet("font-weight: 600; color: #D1D5DB; font-size: 12px;")
         self.cmb_motion = QComboBox()
-        self.cmb_motion.addItem("Talking Character (តួអង្គនិយាយ & ព្រិចភ្នែក)", "talking")
-        self.cmb_motion.addItem("Whiteboard Hand-Drawn (តុក្កតាគូសដៃ)", "whiteboard")
-        self.cmb_motion.addItem("Cinematic Camera Motion (Zoom/Pan)", "cinematic")
+        self.cmb_motion.addItem("Zoom In (ពង្រីកចូលសន្សឹមៗ)", "zoom_in")
+        self.cmb_motion.addItem("Zoom Out (បង្រួមចេញសន្សឹមៗ)", "zoom_out")
+        self.cmb_motion.addItem("Pan Left (កាមេរ៉ារំកិលឆ្វេង)", "pan_left")
+        self.cmb_motion.addItem("Pan Right (កាមេរ៉ារំកិលស្តាំ)", "pan_right")
+        self.cmb_motion.addItem("Steady / Cut (ប្តូរប្លង់កាត់តធម្មតា)", "steady")
+        self.cmb_motion.addItem("Talking Character (តួអង្គនិយាយ)", "talking")
+        self.cmb_motion.addItem("Whiteboard Hand (គូសដៃ)", "whiteboard")
         mot_box.addWidget(mot_lbl)
         mot_box.addWidget(self.cmb_motion)
         p_lay.addLayout(mot_box)
@@ -167,25 +175,44 @@ class StoryInputView(QWidget):
         ar_lbl = QLabel("ទំហំវីដេអូ (Aspect Ratio):")
         ar_lbl.setStyleSheet("font-weight: 600; color: #D1D5DB; font-size: 12px;")
         self.cmb_ratio = QComboBox()
+        self.cmb_ratio.addItem("ផ្ដេក 16:9 (YouTube Widescreen - ដូច aitest.mp4)", "16:9")
         self.cmb_ratio.addItem("បញ្ឈរ 9:16 (TikTok, Reels, Shorts)", "9:16")
-        self.cmb_ratio.addItem("ផ្ដេក 16:9 (YouTube Video)", "16:9")
         ar_box.addWidget(ar_lbl)
         ar_box.addWidget(self.cmb_ratio)
         p_lay.addLayout(ar_box)
 
-        # 4. Voice & Tone
+        # 4. Voice & Clone
         v_box = QVBoxLayout()
-        v_lbl = QLabel("សំឡេង AI (Edge-TTS):")
+        v_lbl = QLabel("សំឡេង & Clone (Voice):")
         v_lbl.setStyleSheet("font-weight: 600; color: #D1D5DB; font-size: 12px;")
         self.cmb_voice = QComboBox()
         for v_id, v_name in TTSService.VOICES.items():
             self.cmb_voice.addItem(v_name, v_id)
+        self.cmb_voice.currentIndexChanged.connect(self._on_voice_changed)
         v_box.addWidget(v_lbl)
         v_box.addWidget(self.cmb_voice)
 
+        # Clone sample selector row
+        self.clone_row = QWidget()
+        cl_lay = QHBoxLayout(self.clone_row)
+        cl_lay.setContentsMargins(0, 0, 0, 0)
+        self.btn_pick_sample = QPushButton("📁 ជ្រើសសំឡេងគំរូ (.mp3/.wav)")
+        self.btn_pick_sample.setStyleSheet("font-size: 10px; padding: 2px 6px; background-color: #22252B; border: 1px solid #363B45; color: #60A5FA; border-radius: 4px;")
+        self.btn_pick_sample.clicked.connect(self._pick_voice_sample)
+        cl_lay.addWidget(self.btn_pick_sample)
+
+        self.lbl_sample_status = QLabel("")
+        self.lbl_sample_status.setStyleSheet("color: #34D399; font-size: 10px;")
+        sample = settings.get("custom_voice_sample_path", "")
+        if sample and os.path.exists(sample):
+            self.lbl_sample_status.setText(f"✅ {os.path.basename(sample)}")
+        cl_lay.addWidget(self.lbl_sample_status)
+        cl_lay.addStretch()
+        v_box.addWidget(self.clone_row)
+
         # Voice Tone / Mood
         t_lbl = QLabel("ទឹកដមសម្លេង (Voice Mood):")
-        t_lbl.setStyleSheet("font-weight: 600; color: #9CA3AF; font-size: 11px; margin-top: 4px;")
+        t_lbl.setStyleSheet("font-weight: 600; color: #9CA3AF; font-size: 11px; margin-top: 2px;")
         self.cmb_tone = QComboBox()
         self.cmb_tone.addItem("🧘 ទឹកដមអប់រំ & ចិត្តវិទ្យា (Calm & Deep - ណែនាំ)", "educational")
         self.cmb_tone.addItem("📖 ទឹកដមបែបនិទានរឿង (Storyteller)", "story")
@@ -308,10 +335,36 @@ class StoryInputView(QWidget):
             idx = self.cmb_motion.findData("whiteboard")
             if idx >= 0:
                 self.cmb_motion.setCurrentIndex(idx)
-        else:
-            idx = self.cmb_motion.findData("talking")
+        elif style == "talkmoney_2d":
+            idx = self.cmb_motion.findData("zoom_in")
             if idx >= 0:
                 self.cmb_motion.setCurrentIndex(idx)
+        else:
+            idx = self.cmb_motion.findData("zoom_in")
+            if idx >= 0:
+                self.cmb_motion.setCurrentIndex(idx)
+
+    def _pick_voice_sample(self):
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, "ជ្រើសរើស File សំឡេងគំរូសម្រាប់ Clone", "", "Audio Files (*.mp3 *.wav *.m4a *.aac)"
+        )
+        if file_path:
+            ok, msg = TTSService.clone_voice_sample(file_path)
+            fname = os.path.basename(file_path)
+            self.lbl_sample_status.setText(f"✅ {fname}")
+            idx = self.cmb_voice.findData("cloned_voice")
+            if idx >= 0:
+                self.cmb_voice.setCurrentIndex(idx)
+            QMessageBox.information(self, "Clone សំឡេង", msg)
+
+    def _on_voice_changed(self):
+        v = self.cmb_voice.currentData()
+        if v == "cloned_voice":
+            sample = settings.get("custom_voice_sample_path", "")
+            if sample and os.path.exists(sample):
+                self.lbl_sample_status.setText(f"✅ {os.path.basename(sample)}")
+            else:
+                self.lbl_sample_status.setText("⚠️ មិនទាន់ជ្រើស File គំរូ")
 
     def _apply_tone_settings(self):
         tone = self.cmb_tone.currentData() if hasattr(self, "cmb_tone") else "educational"

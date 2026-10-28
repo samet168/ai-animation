@@ -201,6 +201,41 @@ class SettingsDialog(QDialog):
         gr_lay.addWidget(self.lbl_groq_status)
         layout.addWidget(groq_card)
 
+        # ElevenLabs API Key Field (Voice Cloning)
+        el_card = QFrame()
+        el_card.setProperty("card", "true")
+        el_lay = QVBoxLayout(el_card)
+
+        el_title_lay = QHBoxLayout()
+        el_title = QLabel("ElevenLabs API Key (សម្រាប់ Voice Cloning):")
+        el_title.setStyleSheet("font-weight: 600; color: #E5E7EB;")
+
+        el_link_btn = QPushButton("  យក Key Free (elevenlabs.io)")
+        el_link_btn.setIcon(get_icon("link", "#9CA3AF", 14))
+        el_link_btn.setIconSize(QSize(14, 14))
+        el_link_btn.setStyleSheet("color: #9CA3AF; background: transparent; border: none; text-decoration: underline;")
+        el_link_btn.setCursor(Qt.PointingHandCursor)
+        el_link_btn.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://elevenlabs.io")))
+        el_title_lay.addWidget(el_title)
+        el_title_lay.addStretch()
+        el_title_lay.addWidget(el_link_btn)
+        el_lay.addLayout(el_title_lay)
+
+        el_input_lay = QHBoxLayout()
+        self.txt_elevenlabs_key = QLineEdit()
+        self.txt_elevenlabs_key.setEchoMode(QLineEdit.Password)
+        self.txt_elevenlabs_key.setPlaceholderText("បញ្ចូល ElevenLabs API Key សម្រាប់ Clone សំឡេងខ្មែរ (10,000 Free Chars/month)...")
+        el_input_lay.addWidget(self.txt_elevenlabs_key)
+
+        self.btn_toggle_el = QPushButton()
+        self.btn_toggle_el.setIcon(get_icon("eye", "#9CA3AF", 16))
+        self.btn_toggle_el.setFixedWidth(38)
+        self.btn_toggle_el.clicked.connect(lambda: self._toggle_echo(self.txt_elevenlabs_key, self.btn_toggle_el))
+        el_input_lay.addWidget(self.btn_toggle_el)
+        el_lay.addLayout(el_input_lay)
+
+        layout.addWidget(el_card)
+
         layout.addStretch()
 
     def _setup_audio_tab(self):
@@ -401,6 +436,7 @@ class SettingsDialog(QDialog):
     def _load_values(self):
         self.txt_gemini_key.setText(settings.get("gemini_api_key", ""))
         self.txt_groq_key.setText(settings.get("groq_api_key", ""))
+        self.txt_elevenlabs_key.setText(settings.get("elevenlabs_api_key", ""))
 
         cur_voice = settings.get("default_voice", "km-KH-PisethNeural")
         idx = self.cmb_voice.findData(cur_voice)
@@ -428,6 +464,7 @@ class SettingsDialog(QDialog):
     def _save_and_close(self):
         settings.set("gemini_api_key", self.txt_gemini_key.text().strip())
         settings.set("groq_api_key", self.txt_groq_key.text().strip())
+        settings.set("elevenlabs_api_key", self.txt_elevenlabs_key.text().strip())
         settings.set("default_voice", self.cmb_voice.currentData())
         settings.set("image_model", self.cmb_img_model.currentData())
         settings.set("subtitle_enabled", self.chk_subtitles.isChecked())

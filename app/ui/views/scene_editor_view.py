@@ -1,9 +1,11 @@
 import os
 import re
+import shutil
 import logging
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextEdit, 
-    QPushButton, QComboBox, QScrollArea, QFrame, QMessageBox, QProgressBar
+    QPushButton, QComboBox, QScrollArea, QFrame, QMessageBox, QProgressBar,
+    QFileDialog
 )
 from PySide6.QtCore import Qt, Signal, QSize, QThread
 from PySide6.QtGui import QPixmap
@@ -97,12 +99,13 @@ class SceneCard(QFrame):
         header_lay.addWidget(m_lbl)
 
         self.cmb_motion = QComboBox()
-        self.cmb_motion.addItem("Talking Character (តួអង្គនិយាយ & ព្រិចភ្នែក)", "talking")
-        self.cmb_motion.addItem("គូសដៃ Whiteboard Hand-Drawn", "whiteboard")
-        self.cmb_motion.addItem("Zoom In (ពង្រីក)", "zoom_in")
-        self.cmb_motion.addItem("Zoom Out (បង្រួម)", "zoom_out")
-        self.cmb_motion.addItem("Pan Left (កាមេរ៉ារំកិលឆ្វេង)", "pan_left")
-        self.cmb_motion.addItem("Pan Right (កាមេរ៉ារំកិលស្តាំ)", "pan_right")
+        self.cmb_motion.addItem("🔍 Zoom In (ពង្រីកចូល)", "zoom_in")
+        self.cmb_motion.addItem("🔎 Zoom Out (បង្រួមចេញ)", "zoom_out")
+        self.cmb_motion.addItem("⬅️ Pan Left (កាមេរ៉ារំកិលឆ្វេង)", "pan_left")
+        self.cmb_motion.addItem("➡️ Pan Right (កាមេរ៉ារំកិលស្តាំ)", "pan_right")
+        self.cmb_motion.addItem("⏹️ Steady / Cut (រូបភាពនឹង)", "steady")
+        self.cmb_motion.addItem("🗣️ Talking Character (តួអង្គនិយាយ)", "talking")
+        self.cmb_motion.addItem("✍️ Whiteboard Hand-Drawn", "whiteboard")
         
         cur_motion = self.scene.get("camera_motion", "zoom_in")
         idx = self.cmb_motion.findData(cur_motion)
@@ -153,6 +156,14 @@ class SceneCard(QFrame):
         aud_row.addWidget(self.lbl_audio_status)
 
         aud_row.addStretch()
+
+        self.btn_import_voice = QPushButton("  ដាក់សំឡេងផ្ទាល់")
+        self.btn_import_voice.setIcon(get_icon("folder", "#9CA3AF", 13))
+        self.btn_import_voice.setIconSize(QSize(13, 13))
+        self.btn_import_voice.setStyleSheet("font-size: 11px; padding: 4px 8px;")
+        self.btn_import_voice.setToolTip("ជ្រើសរើសឯកសារសំឡេង MP3/WAV ផ្ទាល់ខ្លួនសម្រាប់ Scene នេះ")
+        self.btn_import_voice.clicked.connect(self._import_custom_audio)
+        aud_row.addWidget(self.btn_import_voice)
 
         self.btn_gen_voice = QPushButton("  បញ្ចេញសំឡេងនេះ")
         self.btn_gen_voice.setIcon(get_icon("volume", "#9CA3AF", 14))
@@ -271,6 +282,36 @@ class SceneCard(QFrame):
             self.lbl_audio_status.setText(f"រយៈពេលសំឡេង: {dur:.1f}s")
         else:
             QMessageBox.warning(self, "បរាជ័យ", "មិនអាចបង្កើតសំឡេងបានទេ។")
+
+    def _import_custom_audio(self):
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, 
+            "ជ្រើសរើសឯកសារសំឡេងសម្រាប់ Scene នេះ", 
+            "", 
+            "Audio Files (*.mp3 *.wav *.m4a *.aac *.ogg)"
+        )
+        if not file_path or not os.path.exists(file_path):
+            return
+
+        dur = TTSService.get_audio_duration(file_path)
+        if dur <= 0:
+            QMessageBox.warning(self, "ឯកសារមិនត្រឹមត្រូវ", "មិនអាចវាស់ប្រវែងសំឡេងនេះបានទេ។ សូមពិនិត្យមើលឯកសារឡើងវិញ។")
+            return
+
+        app_dir = settings.app_dir
+        audio_dir = os.path.join(app_dir, "data", "audio")
+        os.makedirs(audio_dir, exist_ok=True)
+        ext = os.path.splitext(file_path)[1].lower() or ".mp3"
+        dest_path = os.path.join(audio_dir, f"scene_{self.scene['id']}{ext}")
+        try:
+            shutil.copyfile(file_path, dest_path)
+            self.scene["audio_path"] = dest_path
+            self.scene["audio_duration"] = dur
+            db.update_scene(self.scene["id"], audio_path=dest_path, audio_duration=dur)
+            self.lbl_audio_status.setText(f"រយៈពេលសំឡេង: {dur:.1f}s")
+            QMessageBox.information(self, "ជោគជ័យ", f"បានបញ្ចូលសំឡេងផ្ទាល់ខ្លួន (ប្រវែង {dur:.1f}s) ដោយជោគជ័យ!")
+        except Exception as e:
+            QMessageBox.critical(self, "បញ្ហា", f"មិនអាចចម្លងឯកសារបានឡើយ៖ {e}")
 
 
 class SceneEditorView(QWidget):
