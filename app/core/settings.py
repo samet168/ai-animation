@@ -20,7 +20,7 @@ class SettingsManager:
         "custom_voice_sample_path": "",
 
         # Story & Generation Defaults
-        "default_style": "talkmoney_2d",
+        "default_style": "aitest_style",
         "default_scenes_count": 6,
         "aspect_ratio": "16:9",  # "16:9" or "9:16"
 

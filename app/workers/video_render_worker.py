@@ -17,8 +17,8 @@ class VideoRenderWorker(QThread):
     finished = Signal(str)  # final_video_path
     error = Signal(str)
 
-    def __init__(self, project_id: int, scenes: List[Dict[str, Any]], aspect_ratio: str = "9:16", 
-                 art_style: str = "3d_pixar", voice: str = "km-KH-PisethNeural", bgm_path: Optional[str] = None):
+    def __init__(self, project_id: int, scenes: List[Dict[str, Any]], aspect_ratio: str = "16:9", 
+                 art_style: str = "aitest_style", voice: str = "km-KH-PisethNeural", bgm_path: Optional[str] = None):
         super().__init__()
         self.project_id = project_id
         self.scenes = scenes
@@ -126,12 +126,8 @@ class VideoRenderWorker(QThread):
                 pct = 50 + int((i / total) * 40)
                 self.progress.emit(pct, f"កំពុង Render វីដេអូចលនា Scene #{scene_num}/{total}...")
 
-                if (self.art_style and self.art_style.startswith("whiteboard")) or motion == "whiteboard":
-                    chosen_motion = "whiteboard"
-                elif motion in ("zoom_in", "zoom_out", "pan_left", "pan_right", "steady", "cut", "none"):
+                if motion in ("zoom_in", "zoom_out", "pan_left", "pan_right", "steady", "cut", "none"):
                     chosen_motion = motion
-                elif motion in ("talking", "character_motion", "lip_sync"):
-                    chosen_motion = "talking"
                 else:
                     auto_motions = ["zoom_in", "pan_left", "zoom_out", "steady", "zoom_in", "pan_right"]
                     chosen_motion = auto_motions[i % len(auto_motions)]

@@ -21,9 +21,9 @@ class FullAutoWorker(QThread):
     finished = Signal(int, str)           # (project_id, final_video_path)
     error = Signal(str)
 
-    def __init__(self, topic: str, num_scenes: int = 5, style: str = "3d_pixar", 
-                 aspect_ratio: str = "9:16", voice: str = "km-KH-PisethNeural",
-                 motion_mode: str = "talking", genre: str = "general"):
+    def __init__(self, topic: str, num_scenes: int = 5, style: str = "aitest_style", 
+                 aspect_ratio: str = "16:9", voice: str = "km-KH-PisethNeural",
+                 motion_mode: str = "auto", genre: str = "general"):
         super().__init__()
         self.topic = topic
         self.num_scenes = num_scenes
@@ -157,17 +157,13 @@ class FullAutoWorker(QThread):
                 cur_pct = 75 + int((i / len(db_scenes)) * 18)
                 self.progress.emit(cur_pct, f"កំពុង Render ចលនា & អក្សររត់ Scene {sc['scene_number']}/{len(db_scenes)}...")
 
-                # Resolve animation motion type
-                if self.style.startswith("whiteboard") or self.motion_mode == "whiteboard" or sc.get("camera_motion") == "whiteboard":
-                    chosen_motion = "whiteboard"
-                elif self.motion_mode in ("zoom_in", "zoom_out", "pan_left", "pan_right", "steady", "cut"):
+                # Resolve camera motion type for aitest.mp4 style
+                if self.motion_mode in ("zoom_in", "zoom_out", "pan_left", "pan_right", "steady", "cut"):
                     chosen_motion = self.motion_mode
                 elif sc.get("camera_motion") in ("zoom_in", "zoom_out", "pan_left", "pan_right", "steady", "cut"):
                     chosen_motion = sc.get("camera_motion")
-                elif self.motion_mode in ("talking", "character_motion", "lip_sync") or sc.get("camera_motion") == "talking":
-                    chosen_motion = "talking"
                 else:
-                    # Auto / Default: dynamically alternate smooth cinematic camera motions & steady cuts
+                    # Auto / Default: dynamically alternate smooth Ken Burns camera zooms & steady cuts
                     auto_motions = ["zoom_in", "pan_left", "zoom_out", "steady", "zoom_in", "pan_right"]
                     chosen_motion = auto_motions[i % len(auto_motions)]
 

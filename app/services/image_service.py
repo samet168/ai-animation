@@ -20,8 +20,9 @@ class ImageService:
     COOLDOWN_SECONDS: float = 45.0
 
     STYLE_PROMPTS = {
-        # Core 2 Modes (Preferred)
-        "talkmoney_2d": "TalkMoney 2D Stickman Comic style, cute simple stickman character with round white circle head, expressive black line eyes and eyebrows, stick figure body wearing casual clothes, detailed colorful 2D cartoon background of everyday Cambodian life (coffee shop, street with tuk-tuks, local market, warehouse, rain, office), clean crisp inked outlines, vibrant flat colors, graphic novel storytelling illustration, masterpiece",
+        # Core aitest.mp4 Style (TalkMoney inspired storytelling illustration)
+        "aitest_style": "aitest video style, TalkMoney inspired comic storytelling illustration, cute minimalist character with smooth white round head, expressive facial features, casual modern outfit, authentic detailed Cambodian environment (café, espresso machine, street with tuk-tuks, local shops, market, rain, warm atmospheric lighting), clean crisp lineart, graphic novel editorial illustration, 16:9 widescreen composition, high quality artwork, masterpiece",
+        "talkmoney_2d": "aitest video style, TalkMoney inspired comic storytelling illustration, cute minimalist character with smooth white round head, expressive facial features, casual modern outfit, authentic detailed Cambodian environment (café, espresso machine, street with tuk-tuks, local shops, market, rain, warm atmospheric lighting), clean crisp lineart, graphic novel editorial illustration, 16:9 widescreen composition, high quality artwork, masterpiece",
         "cinematic_zoom": "Cinematic movie scene still, photorealistic composition, 35mm film lens, dramatic atmospheric lighting, depth of field, sharp focus, 4k resolution, cinematic storytelling",
 
         # Legacy Styles for backward compatibility

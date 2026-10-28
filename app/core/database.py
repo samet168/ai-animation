@@ -39,7 +39,7 @@ class Database:
                 title TEXT,
                 topic TEXT,
                 art_style TEXT,
-                aspect_ratio TEXT DEFAULT '9:16',
+                aspect_ratio TEXT DEFAULT '16:9',
                 voice TEXT DEFAULT 'km-KH-PisethNeural',
                 final_video_path TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

@@ -172,11 +172,11 @@ Your narration must be natural, spoken conversational Khmer, deeply insightful, 
             genre_context = """CONTENT GENRE: Engaging Narrative Video Storytelling with Conversational Flow and Strong Visuals.
 Write like a modern video creator telling an engaging story directly to the viewer."""
 
-        if style in ("talkmoney_2d", "2d_comic", "stickman"):
-            style_instruction = """VISUAL ART STYLE: TalkMoney 2D Stickman Comic Animation (like aitest.mp4).
-- Character: A simple 2D stickman character with a round white circle head, expressive black line facial emotions (worried, confident, holding head, observing), stick body wearing casual modern clothing.
-- Background: Detailed colorful 2D cartoon background of realistic Cambodian scenes (coffee shop counter, street with tuk-tuks, warehouse, local market, rain outside).
-- Lineart: Clean inked outlines, vibrant flat cartoon colors, comic book storytelling framing."""
+        if style in ("aitest_style", "talkmoney_2d", "2d_comic", "stickman", "default") or not style:
+            style_instruction = """VISUAL ART STYLE: aitest.mp4 Video Style (TalkMoney inspired storytelling illustration).
+- Character: A cute minimalist character with a smooth round white head, expressive black line facial emotions (worried, confident, thoughtful, observing), wearing casual modern clothing.
+- Background: Detailed colorful cartoon background of realistic everyday Cambodian scenes (coffee shop counter, espresso machine, street with tuk-tuks, warehouse, local market, rain outside, cozy room).
+- Composition: Clean crisp inked outlines, vibrant flat colors, graphic novel storytelling framing, 16:9 widescreen composition."""
         elif style in ("cinematic_zoom", "cinematic_realistic"):
             style_instruction = """VISUAL ART STYLE: Cinematic Movie Scene Still with 35mm lens, atmospheric lighting, depth of field, sharp focus, 4k resolution."""
         else:

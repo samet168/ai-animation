@@ -104,8 +104,6 @@ class SceneCard(QFrame):
         self.cmb_motion.addItem(get_icon("arrow-left", "#A78BFA", 14), "Pan Left (កាមេរ៉ារំកិលឆ្វេង)", "pan_left")
         self.cmb_motion.addItem(get_icon("arrow-right", "#A78BFA", 14), "Pan Right (កាមេរ៉ារំកិលស្តាំ)", "pan_right")
         self.cmb_motion.addItem(get_icon("square", "#9CA3AF", 14), "Steady / Cut (រូបភាពនឹង)", "steady")
-        self.cmb_motion.addItem(get_icon("user", "#34D399", 14), "Talking Character (តួអង្គនិយាយ)", "talking")
-        self.cmb_motion.addItem(get_icon("edit", "#F472B6", 14), "Whiteboard Hand-Drawn", "whiteboard")
         
         cur_motion = self.scene.get("camera_motion", "zoom_in")
         idx = self.cmb_motion.findData(cur_motion)
@@ -208,8 +206,8 @@ class SceneCard(QFrame):
         self.btn_regen_img.setEnabled(False)
         self.btn_regen_img.setText("  កំពុងរៀបចំ...")
         prompt = self.txt_prompt.toPlainText().strip()
-        style = self.project.get("art_style", "3d_pixar")
-        ratio = self.project.get("aspect_ratio", "9:16")
+        style = self.project.get("art_style", "aitest_style")
+        ratio = self.project.get("aspect_ratio", "16:9")
         model = settings.get("image_model", "flux")
 
         app_dir = settings.app_dir
@@ -450,8 +448,8 @@ class SceneEditorView(QWidget):
     def _generate_all_images(self):
         if not self.scenes:
             return
-        style = self.project_data.get("art_style", "3d_pixar")
-        ratio = self.project_data.get("aspect_ratio", "9:16")
+        style = self.project_data.get("art_style", "aitest_style")
+        ratio = self.project_data.get("aspect_ratio", "16:9")
         self._set_busy(True)
         self.progress_bar.setValue(0)
         self.lbl_status.setText("កំពុងទាញយករូបភាព AI គ្រប់ Scene...")
@@ -473,8 +471,8 @@ class SceneEditorView(QWidget):
         self.progress_bar.setValue(0)
         self.lbl_status.setText("កំពុងរៀបចំ និង Render វីដេអូចលនា...")
 
-        ratio = self.project_data.get("aspect_ratio", "9:16")
-        art_style = self.project_data.get("art_style", "3d_pixar")
+        ratio = self.project_data.get("aspect_ratio", "16:9")
+        art_style = self.project_data.get("art_style", "aitest_style")
         voice = self.project_data.get("voice", "km-KH-PisethNeural")
 
         # Automatically auto-completes missing audio/images without warning blocks!

@@ -8,7 +8,7 @@ class StoryWorker(QThread):
     finished = Signal(dict)
     error = Signal(str)
 
-    def __init__(self, topic: str, num_scenes: int = 5, style: str = "3d_pixar", genre: str = "general"):
+    def __init__(self, topic: str, num_scenes: int = 5, style: str = "aitest_style", genre: str = "general"):
         super().__init__()
         self.topic = topic
         self.num_scenes = num_scenes
