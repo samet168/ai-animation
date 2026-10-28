@@ -295,7 +295,8 @@ class SettingsDialog(QDialog):
         i_lay.addWidget(i_lbl)
 
         self.cmb_img_model = QComboBox()
-        self.cmb_img_model.addItem("FLUX (គុណភាពល្អបំផុត - ណែនាំ)", "flux")
+        self.cmb_img_model.addItem("Default (ឥតគិតថ្លៃ & លឿន - ណែនាំ)", "default")
+        self.cmb_img_model.addItem("FLUX (គុណភាពខ្ពស់)", "flux")
         self.cmb_img_model.addItem("Turbo (លឿន)", "turbo")
         i_lay.addWidget(self.cmb_img_model)
 

@@ -17,12 +17,12 @@ class ImageService:
     """
 
     _last_request_time: float = 0.0
-    COOLDOWN_SECONDS: float = 45.0
+    MIN_REQUEST_INTERVAL: float = 2.0
 
     STYLE_PROMPTS = {
         # Core aitest.mp4 Style (TalkMoney inspired storytelling illustration)
-        "aitest_style": "aitest video style, TalkMoney inspired comic storytelling illustration, cute minimalist character with smooth white round head, expressive facial features, casual modern outfit, authentic detailed Cambodian environment (café, espresso machine, street with tuk-tuks, local shops, market, rain, warm atmospheric lighting), clean crisp lineart, graphic novel editorial illustration, 16:9 widescreen composition, high quality artwork, masterpiece",
-        "talkmoney_2d": "aitest video style, TalkMoney inspired comic storytelling illustration, cute minimalist character with smooth white round head, expressive facial features, casual modern outfit, authentic detailed Cambodian environment (café, espresso machine, street with tuk-tuks, local shops, market, rain, warm atmospheric lighting), clean crisp lineart, graphic novel editorial illustration, 16:9 widescreen composition, high quality artwork, masterpiece",
+        "aitest_style": "2D cartoon webcomic illustration in TheOdd1sOut and TalkMoney animation style, cute minimalist stickman character with smooth pure white circle head, simple expressive black line eyes and smile, white hands, casual modern clothing, 2D cartoon background of everyday Cambodian scenes, clean bold black ink outlines, warm flat 2D cel colors, graphic novel art, 16:9 widescreen composition, high quality, masterpiece, no photorealism, no 3D rendering, no human skin",
+        "talkmoney_2d": "2D cartoon webcomic illustration in TheOdd1sOut and TalkMoney animation style, cute minimalist stickman character with smooth pure white circle head, simple expressive black line eyes and smile, white hands, casual modern clothing, 2D cartoon background of everyday Cambodian scenes, clean bold black ink outlines, warm flat 2D cel colors, graphic novel art, 16:9 widescreen composition, high quality, masterpiece, no photorealism, no 3D rendering, no human skin",
         "cinematic_zoom": "Cinematic movie scene still, photorealistic composition, 35mm film lens, dramatic atmospheric lighting, depth of field, sharp focus, 4k resolution, cinematic storytelling",
 
         # Legacy Styles for backward compatibility
@@ -42,11 +42,18 @@ class ImageService:
     }
 
     @classmethod
-    def enhance_prompt(cls, base_prompt: str, style: str = "3d_pixar") -> str:
+    def enhance_prompt(cls, base_prompt: str, style: str = "aitest_style") -> str:
         """Combine user prompt with stylistic keywords for maximum aesthetic quality."""
-        style_keywords = cls.STYLE_PROMPTS.get(style, cls.STYLE_PROMPTS["3d_pixar"])
-        # Clean prompt of special non-breaking characters
+        style_keywords = cls.STYLE_PROMPTS.get(style, cls.STYLE_PROMPTS["aitest_style"])
         clean_p = base_prompt.replace("\u2011", "-").replace("—", "-").strip()
+        
+        # When targeting aitest_style, ensure photorealistic or skin keywords are sanitized
+        if style in ("aitest_style", "talkmoney_2d"):
+            for bad_kw in ["photorealistic", "realistic", "3d pixar", "3D Pixar", "hyperrealistic", "bald man"]:
+                clean_p = re.sub(re.escape(bad_kw), "", clean_p, flags=re.IGNORECASE).strip()
+            if "stickman" not in clean_p.lower() and "marshmallow" not in clean_p.lower():
+                clean_p = f"stickman character with white circle head, {clean_p}"
+                
         return f"{clean_p}, {style_keywords}"
 
     @classmethod
@@ -157,28 +164,34 @@ class ImageService:
     def generate_image(cls, 
                         prompt: str, 
                         output_path: str, 
-                        style: str = "3d_pixar", 
-                        aspect_ratio: str = "9:16",
-                        model: str = "flux",
+                        style: str = "aitest_style", 
+                        aspect_ratio: str = "16:9",
+                        model: str = "default",
                         seed: Optional[int] = None,
                         max_retries: int = 8,
                         progress_callback: Optional[Callable[[str], None]] = None) -> bool:
         """
-        Generate image via Pollinations.ai or Hugging Face with proactive queue cooldown
+        Generate image via Pollinations.ai or Hugging Face with responsive dynamic rate-limit recovery
         and guaranteed real image validation.
         """
         os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
         
         full_prompt = cls.enhance_prompt(prompt, style)
         encoded_prompt = urllib.parse.quote(full_prompt)
-        width, height = cls.DIMENSIONS.get(aspect_ratio, (720, 1280))
+        width, height = cls.DIMENSIONS.get(aspect_ratio, (1280, 720))
         
+        def _safe_progress(msg: str):
+            if progress_callback:
+                try:
+                    progress_callback(msg)
+                except Exception:
+                    pass
+
         # 1. Try Hugging Face Serverless if token configured
         hf_token = settings.get("huggingface_token", "").strip()
         if hf_token:
             try:
-                if progress_callback:
-                    progress_callback("កំពុងទាញយករូបភាពតាម Hugging Face FLUX...")
+                _safe_progress("កំពុងទាញយករូបភាពតាម Hugging Face FLUX...")
                 hf_url = "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell"
                 hf_headers = {"Authorization": f"Bearer {hf_token}"}
                 hf_res = requests.post(hf_url, headers=hf_headers, json={"inputs": full_prompt}, timeout=45)
@@ -190,14 +203,14 @@ class ImageService:
             except Exception as e:
                 logger.warning(f"Hugging Face generation failed, falling back to Pollinations: {e}")
 
-        # 2. Pollinations.ai Generation with Proactive Rate-Limit Cooldown
+        # 2. Pollinations.ai Generation with Dynamic Rate-Limit Cooldown
         pollen_key = settings.get("pollen_api_key", "").strip()
 
-        # Build URL
+        # Build clean URL (avoid passing paid model flags without pollen key)
         url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width={width}&height={height}&nologo=true"
         if pollen_key:
             url += f"&key={pollen_key}"
-        elif model and model != "default" and model != "flux":
+        elif model and model not in ("default", "flux", "turbo"):
             url += f"&model={model}"
 
         if seed is not None:
@@ -208,20 +221,15 @@ class ImageService:
             "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8"
         }
 
-        # Proactive Cooldown: Wait before sending request if 45s haven't elapsed
+        # Safe 2s pacing to prevent simultaneous socket flooding
         if not pollen_key:
             elapsed = time.time() - cls._last_request_time
-            if elapsed < cls.COOLDOWN_SECONDS:
-                wait_needed = int(cls.COOLDOWN_SECONDS - elapsed) + 1
-                for rem in range(wait_needed, 0, -1):
-                    if progress_callback:
-                        progress_callback(f"រង់ចាំ AI Cooldown ({rem}s) ដើម្បីបង្កើតរូបភាពបន្ទាប់...")
-                    time.sleep(1)
+            if elapsed < cls.MIN_REQUEST_INTERVAL:
+                time.sleep(cls.MIN_REQUEST_INTERVAL - elapsed)
 
         for attempt in range(1, max_retries + 1):
             try:
-                if progress_callback:
-                    progress_callback(f"កំពុងទាញយករូបភាពពី Pollinations AI (ព្យាយាម {attempt}/{max_retries})...")
+                _safe_progress(f"កំពុងទាញយករូបភាពពី Pollinations AI (ព្យាយាម {attempt}/{max_retries})...")
                 logger.info(f"Generating image (attempt {attempt}/{max_retries})...")
                 
                 response = requests.get(url, headers=headers, timeout=60)
@@ -238,19 +246,23 @@ class ImageService:
                         logger.info(f"Real image successfully saved & watermark-free: {output_path} ({len(response.content)} bytes)")
                         return True
                 
-                # Handle rate limit (402 Free limit: 1 image every 45s)
-                if response.status_code == 402:
-                    resp_text = response.text
-                    m = re.search(r"Retry after (\d+)s", resp_text)
-                    wait_secs = int(m.group(1)) if m else 30
-                    wait_secs = max(wait_secs, 5)
+                # Handle rate limit & service overload (402, 429, 503)
+                if response.status_code in (402, 429, 503):
+                    # Check exact Retry-After header first
+                    ra_hdr = response.headers.get("Retry-After")
+                    if ra_hdr and ra_hdr.isdigit():
+                        wait_secs = int(ra_hdr)
+                    else:
+                        m = re.search(r"Retry after (\d+)s", response.text)
+                        wait_secs = int(m.group(1)) if m else 10
+                    
+                    wait_secs = max(wait_secs, 3)
                     wait_secs = min(wait_secs, 45) + 1
 
                     if attempt < max_retries:
-                        logger.info(f"Pollinations cooldown active. Waiting {wait_secs}s before retry {attempt+1}/{max_retries}...")
+                        logger.info(f"Pollinations cooldown/limit ({response.status_code}). Waiting {wait_secs}s before retry {attempt+1}/{max_retries}...")
                         for rem in range(wait_secs, 0, -1):
-                            if progress_callback:
-                                progress_callback(f"រង់ចាំ AI Cooldown ({rem}s) មុនព្យាយាមម្តងទៀត...")
+                            _safe_progress(f"រង់ចាំ AI Cooldown ({rem}s) មុនព្យាយាមម្តងទៀត...")
                             time.sleep(1)
                         # Switch to clean base URL if custom model was passed
                         if "model=" in url:
@@ -261,7 +273,7 @@ class ImageService:
                 logger.error(f"Image download error on attempt {attempt}: {e}")
             
             if attempt < max_retries:
-                time.sleep(3)
+                time.sleep(2)
 
         logger.error(f"Failed to generate real AI image for {output_path} after {max_retries} attempts.")
         return False

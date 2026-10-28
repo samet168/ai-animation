@@ -14,7 +14,7 @@ class ImageWorker(QThread):
     finished = Signal()
     error = Signal(str)
 
-    def __init__(self, scenes: List[Dict[str, Any]], style: str = "3d_pixar", aspect_ratio: str = "9:16"):
+    def __init__(self, scenes: List[Dict[str, Any]], style: str = "aitest_style", aspect_ratio: str = "16:9"):
         super().__init__()
         self.scenes = scenes
         self.style = style

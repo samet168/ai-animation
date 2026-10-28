@@ -59,8 +59,8 @@ Format:
     {
       "scene_number": 1,
       "narration_km": "តើអ្នកធ្លាប់ឆ្ងល់ទេថា... ហេតុអ្វីបានជាមនុស្សមួយចំនួន ចូលចិត្តនៅស្ងៀមស្ងាត់ មិនសូវចេះមាត់ក? តើពួកគេអៀន ឬគ្មានអ្វីត្រូវនិយាយ?",
-      "image_prompt_en": "A thoughtful young Cambodian adult standing in a cozy room, soft cinematic lighting, 3D Pixar style",
-      "camera_motion": "talking"
+      "image_prompt_en": "2D cartoon webcomic illustration in TalkMoney animation style, cute minimalist stickman character with smooth white round head, expressive black line face, wearing casual clothes, sitting at a cafe table, clean black outlines, colorful 2D scene, 16:9",
+      "camera_motion": "zoom_in"
     }
   ]
 }"""
@@ -138,7 +138,7 @@ Format:
             return False, f"Groq Connection error: {e}"
 
     @classmethod
-    def generate_storyboard(cls, topic: str, num_scenes: int = 5, style: str = "3d_pixar", genre: str = "general") -> Dict[str, Any]:
+    def generate_storyboard(cls, topic: str, num_scenes: int = 5, style: str = "aitest_style", genre: str = "general") -> Dict[str, Any]:
         """
         Generate storyboard with scenes, Khmer narration, and English visual prompts.
         Supports automatic seamless fallback: Gemini -> Groq.
@@ -173,10 +173,10 @@ Your narration must be natural, spoken conversational Khmer, deeply insightful, 
 Write like a modern video creator telling an engaging story directly to the viewer."""
 
         if style in ("aitest_style", "talkmoney_2d", "2d_comic", "stickman", "default") or not style:
-            style_instruction = """VISUAL ART STYLE: aitest.mp4 Video Style (TalkMoney inspired storytelling illustration).
-- Character: A cute minimalist character with a smooth round white head, expressive black line facial emotions (worried, confident, thoughtful, observing), wearing casual modern clothing.
-- Background: Detailed colorful cartoon background of realistic everyday Cambodian scenes (coffee shop counter, espresso machine, street with tuk-tuks, warehouse, local market, rain outside, cozy room).
-- Composition: Clean crisp inked outlines, vibrant flat colors, graphic novel storytelling framing, 16:9 widescreen composition."""
+            style_instruction = """VISUAL ART STYLE: aitest.mp4 Video Style (TalkMoney and TheOdd1sOut cartoon animation).
+- Character: A cute minimalist stickman character with a smooth pure white circle head, simple expressive black line eyes and smile, white hands, casual modern clothing (NO hair, NO photorealistic human skin).
+- Background: 2D cartoon background of authentic everyday Cambodian scenes (modern coffee shop counter, espresso machine, street with tuk-tuks, local shops, market, rain, warm atmospheric lighting).
+- Inking & Composition: Clean thick black cartoon outlines, warm vibrant flat cel colors, 16:9 widescreen composition. Absolutely NO photorealism, NO 3D rendering, NO realistic human skin texture."""
         elif style in ("cinematic_zoom", "cinematic_realistic"):
             style_instruction = """VISUAL ART STYLE: Cinematic Movie Scene Still with 35mm lens, atmospheric lighting, depth of field, sharp focus, 4k resolution."""
         else:

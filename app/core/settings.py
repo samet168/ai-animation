@@ -25,7 +25,7 @@ class SettingsManager:
         "aspect_ratio": "16:9",  # "16:9" or "9:16"
 
         # Image Settings
-        "image_model": "flux",    # "flux", "turbo"
+        "image_model": "default",    # "default", "flux", "turbo"
         "enhance_prompts": True,
 
         # Voice / TTS Settings
@@ -79,6 +79,21 @@ class SettingsManager:
 
         self.settings = dict(self.DEFAULT_SETTINGS)
         self.load()
+
+        # Auto-migrate legacy settings to aitest_style, 16:9, and default model
+        needs_save = False
+        if self.settings.get("default_style") not in ("aitest_style", "talkmoney_2d"):
+            self.settings["default_style"] = "aitest_style"
+            needs_save = True
+        if self.settings.get("aspect_ratio") != "16:9":
+            self.settings["aspect_ratio"] = "16:9"
+            needs_save = True
+        if self.settings.get("image_model") in ("flux", "turbo") and not self.settings.get("pollen_api_key"):
+            self.settings["image_model"] = "default"
+            needs_save = True
+        if needs_save:
+            self.save()
+
         self._ensure_ffmpeg_path()
         self._ensure_output_dir()
 
